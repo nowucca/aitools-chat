@@ -1,0 +1,9 @@
+[theme]
+base = "light"
+
+[server]
+port = 10200
+enableStaticServing = true
+
+[browser]
+gatherUsageStats = false
