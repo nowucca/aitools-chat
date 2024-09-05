@@ -27,13 +27,13 @@ all the time!
 st.markdown("""
 ## Current Features
 
-* **OpenAI Chat**: Chat with a fixed OpenAI model (gpt-4-turbo-preview).
+* **OpenAI Chat**: Chat with a fixed OpenAI model (gpt-3.5-turbo).
+* **Claude Chat**: Chat with a fixed Anthropic Claude model (claude-3-haiku-20240307).
 
 ## Coming Soon Features
 
 _We hope to add these features soon._
-
-* **Claude Chat**: Chat with a fixed Anthropic Claude model (tbd).
+* Login to automatically save chat history.
 * **Llama Chat**: Chat with a local VT-run llama model (tbd).
 
 ## Feedback
