@@ -6,15 +6,15 @@ from args_parser import parse_args
 parse_args()
 
 st.set_page_config(
-    page_title="Ducky",
-    page_icon="🐥",
+    page_title="AI Tools Chat",
+    page_icon="🎙",
     layout="wide"
 )
 
 
 helpers.sidebar.show()
 
-st.toast("Welcome to AI Tools Chat!", icon="🐥")
+st.toast("Welcome to AI Tools Chat!", icon="🎙️")
 
 st.markdown("""
 # Welcome to AI Tools Chat!

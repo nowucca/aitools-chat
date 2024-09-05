@@ -7,7 +7,7 @@ def show() -> None:
             <a href="/" style="color:black;text-decoration: none;">
                 <div style="display:table;margin-top:-11rem;margin-left:0%;">
                     <span style="color: black">&nbsp;AI Tools Chat</span>
-                    <span style="font-size: 0.8em; color: grey">&nbsp;&nbsp;v0.1.0</span>
+                    <span style="font-size: 0.8em; color: grey">&nbsp;&nbsp;v0.1.1</span>
                 </div>
             </a>
 
