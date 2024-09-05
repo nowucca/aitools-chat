@@ -3,12 +3,18 @@ import anthropic
 from typing import List, Dict, AsyncGenerator, Tuple
 import os
 import traceback
+from dotenv import load_dotenv
 
+load_dotenv()
 class AnthropicChatClient(LLMChatClient):
     def __init__(self):
         self.api_key = os.getenv('ANTHROPIC_API_KEY')
         self.base_url = os.getenv('ANTHROPIC_API_BASE_URL')
         self.model = os.getenv('ANTHROPIC_MODEL')
+
+        print(f"Anthropic api_key: {self.api_key}")
+        print(f"Anthropic base_url: {self.base_url}")
+        print(f"Anthropic model: {self.model}")
 
     def converse_sync(self, prompt: str, messages: List[Dict[str, str]], model="claude-2") -> Tuple[str, List[Dict[str, str]]]:
         # Initialize the Anthropic client with dummy values pointing to the proxy

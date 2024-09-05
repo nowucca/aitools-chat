@@ -10,6 +10,9 @@ class OpenAIChatClient(LLMChatClient):
         self.api_key = os.getenv('OPENAI_API_KEY')
         self.base_url = os.getenv('OPENAI_API_BASE_URL')
         self.model = os.getenv('OPENAI_API_MODEL')
+        print(f"OpenAI api key: {self.api_key}")
+        print(f"OpenAI base url: {self.base_url}")
+        print(f"OpenAI model: {self.model}")
 
     def converse_sync(self, prompt: str, messages: List[Dict[str, str]], model="gpt-3.5-turbo") -> Tuple[str, List[Dict[str, str]]]:
         client = OpenAI(api_key=self.api_key, base_url=self.base_url)
