@@ -30,9 +30,7 @@ class AnthropicChatClient(LLMChatClient):
         response = client.messages.create(
             model=self.model,
             max_tokens=4000,
-            messages=[
-                {"role": "user", "content": "Hello, world"}
-            ]
+            messages=messages
         )
 
         # Extract the relevant information from the response
