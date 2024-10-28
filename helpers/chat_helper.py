@@ -4,8 +4,10 @@ from typing import List, Dict, Union, Tuple
 import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 
+from auth import is_authenticated, authenticated_user
 from llm.llm import LLM_CHOICE, get_llm_client
 from llm.llm_chat_client import LLMChatClient
+from services.conversations import save_conversation
 
 
 async def _run_conversation(client: LLMChatClient,
@@ -56,6 +58,12 @@ async def chat(llm_choice: LLM_CHOICE,
 
         # Display the final response
         st.write(response)
+
+        # Save the conversation to the database
+        if is_authenticated():
+            user = authenticated_user()
+            save_conversation(user, messages)
+
 
         st.session_state.messages = messages
     return messages
