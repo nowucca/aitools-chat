@@ -1,8 +1,6 @@
 import streamlit as st
 from helpers.auth import is_authenticated, logout, authenticated_user
 
-from helpers.auth import login_page
-
 def show() -> None:
     with st.sidebar:
         st.markdown(f"""

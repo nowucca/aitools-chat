@@ -14,3 +14,4 @@ tiktoken==0.7.0
 numpy==1.26.4
 
 mysql-connector-python==9.1.0
+streamlit-authenticator==0.4.1

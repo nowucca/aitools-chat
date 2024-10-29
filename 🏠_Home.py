@@ -5,17 +5,18 @@ from args_parser import parse_args
 
 from helpers.auth import require_authentication
 
-parse_args()
-
-st.set_page_config(
-    page_title="AI Tools Chat",
-    page_icon="🎙",
-    layout="wide"
-)
 
 
 @require_authentication
 def home():
+    parse_args()
+
+    st.set_page_config(
+        page_title="AI Tools Chat",
+        page_icon="🎙",
+        layout="wide"
+    )
+
     helpers.sidebar.show()
 
     st.markdown("""

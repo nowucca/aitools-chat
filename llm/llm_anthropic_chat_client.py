@@ -16,6 +16,9 @@ class AnthropicChatClient(LLMChatClient):
         print(f"Anthropic base_url: {self.base_url}")
         print(f"Anthropic model: {self.model}")
 
+    def model_name(self) -> str:
+        return self.model
+
     def converse_sync(self, prompt: str, messages: List[Dict[str, str]], model="claude-2") -> Tuple[str, List[Dict[str, str]]]:
         # Initialize the Anthropic client with dummy values pointing to the proxy
         client = anthropic.Anthropic(api_key=self.api_key,

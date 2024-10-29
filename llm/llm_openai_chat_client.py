@@ -14,6 +14,9 @@ class OpenAIChatClient(LLMChatClient):
         print(f"OpenAI base url: {self.base_url}")
         print(f"OpenAI model: {self.model}")
 
+    def model_name(self) -> str:
+        return self.model
+
     def converse_sync(self, prompt: str, messages: List[Dict[str, str]], model="gpt-3.5-turbo") -> Tuple[str, List[Dict[str, str]]]:
         client = OpenAI(api_key=self.api_key, base_url=self.base_url)
         # Add the user's message to the list of messages

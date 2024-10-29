@@ -4,7 +4,7 @@ from typing import List, Dict, Union, Tuple
 import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 
-from auth import is_authenticated, authenticated_user
+from helpers.auth import authenticated_user, is_authenticated
 from llm.llm import LLM_CHOICE, get_llm_client
 from llm.llm_chat_client import LLMChatClient
 from services.conversations import save_conversation
@@ -40,9 +40,11 @@ async def _run_conversation(client: LLMChatClient,
 # Chat with the LLM, and update the messages list with the response.
 # Handles the chat UI and partial responses along the way.
 async def chat(llm_choice: LLM_CHOICE,
-               messages: List[Dict[str,str]]) -> List[Dict[str,str]]:
+               messages: List[Dict[str,str]],
+               conversation_id: str,
+               record_ok: bool = True) -> List[Dict[str,str]]:
 
-    client = get_llm_client(llm_choice)
+    client: LLMChatClient = get_llm_client(llm_choice)
 
     message_placeholder = st.empty()
     spinner_placeholder = st.empty()
@@ -60,10 +62,26 @@ async def chat(llm_choice: LLM_CHOICE,
         st.write(response)
 
         # Save the conversation to the database
-        if is_authenticated():
-            user = authenticated_user()
-            save_conversation(user, messages)
-
+        if is_authenticated() and record_ok:
+            try:
+                user = authenticated_user()
+                save_conversation(conversation_id, user, llm_choice.value, client.model_name(), messages)
+            except Exception as e:
+                st.warning(f"Temporarily failed to save conversation: {e}")
 
         st.session_state.messages = messages
     return messages
+
+
+class ConversationHelper:
+    def __init__(self, session_attr_name: str):
+        self.session_attr_name = session_attr_name
+
+    def get_conversation_id(self) -> str:
+        return st.session_state.get(self.session_attr_name, None)
+
+    def set_conversation_id(self, conversation_id: str):
+        st.session_state[self.session_attr_name] = conversation_id
+
+    def has_conversation_id(self) -> bool:
+        return hasattr(st.session_state, self.session_attr_name) and self.session_attr_name in st.session_state

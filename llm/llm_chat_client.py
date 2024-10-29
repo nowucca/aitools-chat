@@ -5,6 +5,10 @@ from typing import List, Dict, AsyncGenerator, Tuple
 
 class LLMChatClient(ABC):
     @abstractmethod
+    def model_name(self) -> str:
+        pass
+
+    @abstractmethod
     def converse_sync(self, prompt: str, messages: List[Dict[str, str]], model: str) -> Tuple[str, List[Dict[str, str]]]:
         pass
 
