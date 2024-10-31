@@ -80,7 +80,7 @@ class ConversationHelper:
     def get_conversation_id(self) -> str:
         return st.session_state.get(self.session_attr_name, None)
 
-    def set_conversation_id(self, conversation_id: str):
+    def set_conversation_id(self, conversation_id: str|None):
         st.session_state[self.session_attr_name] = conversation_id
 
     def has_conversation_id(self) -> bool:

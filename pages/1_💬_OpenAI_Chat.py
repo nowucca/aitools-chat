@@ -1,14 +1,16 @@
 import os
 import uuid
 import asyncio
+from typing import List, Dict
 
 import streamlit as st
 
-from helpers.auth import require_authentication
+from helpers.auth import require_authentication, authenticated_user
 from llm import prompts
 from helpers import chat_helper
 from llm.llm import LLM_CHOICE
 import helpers.sidebar
+
 
 
 @require_authentication
@@ -18,6 +20,8 @@ def openai_chat():
         page_icon="💬",
         layout="wide"
     )
+
+    user = authenticated_user()
 
     helpers.sidebar.show()
 
