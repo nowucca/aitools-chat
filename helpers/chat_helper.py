@@ -81,7 +81,12 @@ class ConversationHelper:
         return st.session_state.get(self.session_attr_name, None)
 
     def set_conversation_id(self, conversation_id: str|None):
-        st.session_state[self.session_attr_name] = conversation_id
+        if conversation_id is None:
+            if hasattr(st.session_state, self.session_attr_name):
+                del st.session_state[self.session_attr_name]
+        else:
+            st.session_state[self.session_attr_name] = conversation_id
+
 
     def has_conversation_id(self) -> bool:
         return hasattr(st.session_state, self.session_attr_name) and self.session_attr_name in st.session_state
