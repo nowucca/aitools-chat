@@ -87,6 +87,6 @@ def openai_chat():
                                 {prompt}
                             </div>
                         """, unsafe_allow_html=True)
-            asyncio.run(chat_helper.chat(LLM_CHOICE.OPENAI, st.session_state[openai_messages], conversation_assistant.get_conversation_id()))
+            asyncio.run(chat_helper.chat(LLM_CHOICE.OPENAI, st.session_state["session_api_key"], st.session_state[openai_messages], conversation_assistant.get_conversation_id()))
 
 openai_chat()

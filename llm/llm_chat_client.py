@@ -9,11 +9,11 @@ class LLMChatClient(ABC):
         pass
 
     @abstractmethod
-    def converse_sync(self, prompt: str, messages: List[Dict[str, str]], model: str) -> Tuple[str, List[Dict[str, str]]]:
+    def converse_sync(self, api_key: str, prompt: str, messages: List[Dict[str, str]], model: str) -> Tuple[str, List[Dict[str, str]]]:
         pass
 
     @abstractmethod
-    async def converse(self, messages: List[Dict[str, str]]) -> AsyncGenerator[str, None]:
+    async def converse(self, api_key: str, messages: List[Dict[str, str]]) -> AsyncGenerator[str, None]:
         """
         Given a conversation history, generate an iterative response of strings from the LLM model.
 
