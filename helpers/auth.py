@@ -23,6 +23,13 @@ def _authenticate(username, password):
         return True
     return False
 
+import base64
+
+def encode_credentials(username, password):
+    credentials = f"{username}:{password}"
+    encoded_credentials = base64.b64encode(credentials.encode()).decode()
+    return encoded_credentials
+
 def login_page():
     """Display the login page for user authentication."""
     if is_authenticated():
@@ -45,6 +52,7 @@ def login_page():
             session_id, session_key = create_session(username)
             st.session_state["session_id"] = session_id
             st.session_state["session_key"] = session_key
+            st.session_state["session_api_key"] = encode_credentials(username, password)
             st.success("Login successful! Redirecting...")
             st.rerun()
         else:

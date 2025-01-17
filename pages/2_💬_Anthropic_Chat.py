@@ -79,6 +79,6 @@ def anthropic_chat():
                         {prompt}
                     </div>
                 """, unsafe_allow_html=True)
-            asyncio.run(chat_helper.chat(LLM_CHOICE.ANTHROPIC, st.session_state[anthropic_messages], conversation_assistant.get_conversation_id()))
+            asyncio.run(chat_helper.chat(LLM_CHOICE.ANTHROPIC, st.session_state["session_api_key"], st.session_state[anthropic_messages], conversation_assistant.get_conversation_id()))
 
 anthropic_chat()

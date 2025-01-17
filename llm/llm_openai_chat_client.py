@@ -7,18 +7,16 @@ import traceback
 
 class OpenAIChatClient(LLMChatClient):
     def __init__(self):
-        self.api_key = os.getenv('OPENAI_API_KEY')
         self.base_url = os.getenv('OPENAI_API_BASE_URL')
         self.model = os.getenv('OPENAI_API_MODEL')
-        print(f"OpenAI api key: {self.api_key}")
         print(f"OpenAI base url: {self.base_url}")
         print(f"OpenAI model: {self.model}")
 
     def model_name(self) -> str:
         return self.model
 
-    def converse_sync(self, prompt: str, messages: List[Dict[str, str]], model="gpt-3.5-turbo") -> Tuple[str, List[Dict[str, str]]]:
-        client = OpenAI(api_key=self.api_key, base_url=self.base_url)
+    def converse_sync(self, api_key: str, prompt: str, messages: List[Dict[str, str]], model="gpt-3.5-turbo") -> Tuple[str, List[Dict[str, str]]]:
+        client = OpenAI(api_key=api_key, base_url=self.base_url)
         # Add the user's message to the list of messages
         if messages is None:
             messages = []
@@ -35,8 +33,8 @@ class OpenAIChatClient(LLMChatClient):
 
         return response, messages
 
-    async def converse(self, messages: List[Dict[str, str]]) -> AsyncGenerator[str, None]:
-        aclient = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url)
+    async def converse(self, api_key: str, messages: List[Dict[str, str]]) -> AsyncGenerator[str, None]:
+        aclient = AsyncOpenAI(api_key=api_key, base_url=self.base_url)
         try:
             async for chunk in await aclient.chat.completions.create(model=self.model,
                                                                      messages=messages,

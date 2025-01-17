@@ -11,12 +11,13 @@ from services.conversations import save_conversation
 
 
 async def _run_conversation(client: LLMChatClient,
+                            api_key: str,
                            messages: List[Dict[str, str]],
                            message_placeholder: Union[DeltaGenerator, None] = None) \
         -> Tuple[List[Dict[str, str]], str]:
     full_response = ""
 
-    chunks = client.converse(messages)
+    chunks = client.converse(api_key, messages)
     chunk = await anext(chunks, "END OF CHAT")
     while chunk != "END OF CHAT":
         print(f"Received chunk from LLM service: {chunk}")
@@ -40,6 +41,7 @@ async def _run_conversation(client: LLMChatClient,
 # Chat with the LLM, and update the messages list with the response.
 # Handles the chat UI and partial responses along the way.
 async def chat(llm_choice: LLM_CHOICE,
+               api_key: str,
                messages: List[Dict[str,str]],
                conversation_id: str,
                record_ok: bool = True) -> List[Dict[str,str]]:
@@ -53,7 +55,7 @@ async def chat(llm_choice: LLM_CHOICE,
         # Step 1: Display spinner while processing the response
         with spinner_placeholder:
             with st.spinner("Receiving response..."):
-                messages, response = await _run_conversation(client, messages, message_placeholder)
+                messages, response = await _run_conversation(client, api_key, messages, message_placeholder)
 
         message_placeholder.empty()  # Clear the streamed chunks
         spinner_placeholder.empty()  # Clear the spinner

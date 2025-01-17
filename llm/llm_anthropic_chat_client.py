@@ -8,20 +8,18 @@ from dotenv import load_dotenv
 load_dotenv()
 class AnthropicChatClient(LLMChatClient):
     def __init__(self):
-        self.api_key = os.getenv('ANTHROPIC_API_KEY')
         self.base_url = os.getenv('ANTHROPIC_API_BASE_URL')
         self.model = os.getenv('ANTHROPIC_MODEL')
 
-        print(f"Anthropic api_key: {self.api_key}")
         print(f"Anthropic base_url: {self.base_url}")
         print(f"Anthropic model: {self.model}")
 
     def model_name(self) -> str:
         return self.model
 
-    def converse_sync(self, prompt: str, messages: List[Dict[str, str]], model="claude-2") -> Tuple[str, List[Dict[str, str]]]:
+    def converse_sync(self, api_key: str, prompt: str, messages: List[Dict[str, str]], model="claude-2") -> Tuple[str, List[Dict[str, str]]]:
         # Initialize the Anthropic client with dummy values pointing to the proxy
-        client = anthropic.Anthropic(api_key=self.api_key,
+        client = anthropic.Anthropic(api_key=api_key,
                                      base_url=self.base_url)
 
         # Add the user's message to the list of messages
@@ -43,8 +41,8 @@ class AnthropicChatClient(LLMChatClient):
 
         return response, messages
 
-    async def converse(self, messages: List[Dict[str, str]]) -> AsyncGenerator[str, None]:
-        aclient = anthropic.AsyncAnthropic(api_key=self.api_key, base_url=self.base_url)
+    async def converse(self, api_key:str, messages: List[Dict[str, str]]) -> AsyncGenerator[str, None]:
+        aclient = anthropic.AsyncAnthropic(api_key=api_key, base_url=self.base_url)
         # Check for a system message at the start
         system_prompt = None
         if messages and messages[0].get("role") == "system":
