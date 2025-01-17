@@ -1,21 +1,30 @@
-import streamlit as st
+from functools import wraps
+from datetime import datetime, timedelta
 import pandas as pd
-from streamlit_cookies_controller import CookieController
+import streamlit as st
+import uuid
+from services.sessions import create_session, validate_session, delete_session
 
-# Constants
-COOKIE_NAME = "username"
-controller = CookieController()
-
+# Configuration for session management
+SESSION_TIMEOUT_MINUTES = 30  # Total session expiry time
+IDLE_TIMEOUT_MINUTES = 10  # Timeout due to inactivity
 
 def _authenticate(username, password):
-    # Check credentials from CSV
+    """Check credentials from CSV and set up session if valid."""
     users_df = pd.read_csv('data/users.csv')
     user_row = users_df[(users_df['user'] == username) & (users_df['password'].astype(str) == str(password))]
-    return not user_row.empty
+    if not user_row.empty:
+        # Initialize session state for the authenticated user
+        st.session_state["authenticated"] = True
+        st.session_state["username"] = username
+        st.session_state["session_key"] = str(uuid.uuid4())  # Unique session key
+        st.session_state["session_start"] = datetime.now()  # Record session start time
+        st.session_state["last_active"] = datetime.now()  # Record last activity time
+        return True
+    return False
 
 def login_page():
-    global controller
-
+    """Display the login page for user authentication."""
     if is_authenticated():
         st.success(f"You are already logged in as {authenticated_user()}.")
         st.stop()
@@ -33,42 +42,41 @@ def login_page():
 
     if st.button("Submit"):
         if _authenticate(username, password):
-            controller.set(COOKIE_NAME, username)
-            cookie = controller.get(COOKIE_NAME)
-
-            st.write(f"Authenticated to {cookie}")
-            st.markdown('<meta http-equiv="refresh" content="0; URL=/">', unsafe_allow_html=True)  # Redirect to home
+            session_id, session_key = create_session(username)
+            st.session_state["session_id"] = session_id
+            st.session_state["session_key"] = session_key
+            st.success("Login successful! Redirecting...")
+            st.rerun()
         else:
             st.error("Incorrect Username or Password. Please try again.")
 
 def authenticated_user():
-    global controller, COOKIE_NAME
-
-    # Retrieve the authenticated username from the cookie
-    return controller.get(COOKIE_NAME)
+    """Return the username of the authenticated user."""
+    if "authenticated" in st.session_state and st.session_state["authenticated"]:
+        return st.session_state.get("username", "Not logged in")
+    return "Not logged in"
 
 def is_authenticated():
-    global controller, COOKIE_NAME
-    # Check if the username cookie exists, indicating the user is authenticated
-    return controller.get(COOKIE_NAME) is not None
-
-def _core_logout():
-    global controller, COOKIE_NAME
-    # Remove the username cookie to log the user out
-    if is_authenticated():
-        controller.remove(COOKIE_NAME)
+    session_id = st.session_state.get("session_id")
+    session_key = st.session_state.get("session_key")
+    return validate_session(session_id, session_key)
 
 def logout():
-    _core_logout()
+    """Logout the user and redirect to the login page."""
+    session_id = st.session_state.get("session_id")
+    if session_id:
+        delete_session(session_id)
+    st.session_state.clear()
+
     st.success("You have been logged out.")
-    st.markdown('<meta http-equiv="refresh" content="1; URL=/Login">', unsafe_allow_html=True)  # Redirect to login
+    st.markdown('<meta http-equiv="refresh" content="1; URL=/Login">', unsafe_allow_html=True)
 
 def require_authentication(func):
+    """Decorator for requiring authentication."""
+    @wraps(func)
     def wrapper(*args, **kwargs):
-        if is_authenticated():
-            func(*args, **kwargs)
-        else:
-            st.error("You must be logged in to use this feature.")
-            st.markdown('<meta http-equiv="refresh" content="1; URL=/Login">', unsafe_allow_html=True)  # Redirect to login
+        if not is_authenticated():
+            login_page()
+            return  # Prevent access to the page until authenticated
+        return func(*args, **kwargs)
     return wrapper
-
