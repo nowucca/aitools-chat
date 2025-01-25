@@ -68,6 +68,26 @@ def create_new_conversation_id(user: str, organization: str, model: str) -> str:
     # Optionally, you can save the initial conversation metadata here
     return conversation_id
 
+def relabel_conversation(conversation_id: str, new_label: str):
+    connection = None
+    cursor = None
+    try:
+        connection = connection_pool.get_connection()
+        if connection.is_connected():
+            cursor = connection.cursor()
+            query = """UPDATE conversations
+                      SET label = %s
+                      WHERE conversation_id = %s"""
+            cursor.execute(query, (new_label, conversation_id))
+            connection.commit()
+    except mysql.connector.Error as e:
+        print(f"Error: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+        if connection and connection.is_connected():
+            connection.close()
+
 def conversation_by_id(conversation_id: str) -> Dict[str, any]:
     connection = None
     cursor = None
@@ -75,7 +95,7 @@ def conversation_by_id(conversation_id: str) -> Dict[str, any]:
         connection = connection_pool.get_connection()
         if connection.is_connected():
             cursor = connection.cursor(dictionary=True)
-            query = """SELECT conversation_id, user, organization, model, messages, created_ts
+            query = """SELECT conversation_id, user, organization, model, messages, created_ts, label
                        FROM conversations WHERE conversation_id = %s"""
             cursor.execute(query, (conversation_id,))
             result = cursor.fetchone()
@@ -100,7 +120,7 @@ def conversations_by_user(username: str = None) -> List[Dict[str, any]]:
         if connection.is_connected():
             cursor = connection.cursor(dictionary=True)
             if username:
-                query = """SELECT conversation_id, user, organization, model, messages, created_ts
+                query = """SELECT conversation_id, user, organization, model, messages, created_ts, label
                            FROM conversations WHERE user = %s ORDER BY created_ts DESC"""
                 cursor.execute(query, (username,))
                 results = cursor.fetchall()
