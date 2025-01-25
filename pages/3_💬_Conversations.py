@@ -34,7 +34,7 @@ def conversations():
         /* Table styling with gridlines */
         .conversation-table {
             display: grid;
-            grid-template-columns: 2fr 2fr 3fr 1fr 1fr;
+            grid-template-columns: 2fr 2fr 2fr 2fr 1fr 1fr;
             width: 100%;
             border-collapse: collapse;
         }
@@ -71,6 +71,7 @@ def conversations():
         <div class="conversation-header">
             <div class="conversation-header-cell">Created Timestamp</div>
             <div class="conversation-header-cell">Model</div>
+            <div class="conversation-header-cell">Project Label</div>
             <div class="conversation-header-cell">Preview Message</div>
             <div class="conversation-header-cell">Rejoin</div>
             <div class="conversation-header-cell">Delete</div>
@@ -83,15 +84,34 @@ def conversations():
         preview_message = (first_message[:100] + '...') if len(first_message) > 100 else first_message
 
         # Row content with buttons and gridlines
-        col1, col2, col3, col4, col5 = st.columns([2, 2, 3, 1, 1])
+        col1, col2, col3, col4, col5, col6 = st.columns([2, 2, 2, 2, 1, 1])
 
         with col1:
             st.markdown(f"<div class='conversation-cell'>{conversation['created_ts']}</div>", unsafe_allow_html=True)
         with col2:
             st.markdown(f"<div class='conversation-cell'>{conversation['model']}</div>", unsafe_allow_html=True)
+
         with col3:
-            st.markdown(f"<div class='conversation-cell'><span class='preview-link'>{preview_message}</span></div>", unsafe_allow_html=True)
+            label_options = ["No Project", "Project 2 - ML - Unsupervised", "Project 2 - ML - Supervised"]
+            current_label = conversation.get('label', 'No Project')
+            try:
+                index = label_options.index(current_label)
+            except ValueError:
+                index = 0
+
+            conversation_label = st.selectbox(
+                label = "Label conversation: ",
+                options = label_options,
+                key = f"project_{conversation['conversation_id']}",
+                index = index
+            )
+
+            if conversation_label != current_label:
+                services.conversations.relabel_conversation(conversation['conversation_id'],
+                                                            conversation_label)
         with col4:
+            st.markdown(f"<div class='conversation-cell'><span class='preview-link'>{preview_message}</span></div>", unsafe_allow_html=True)
+        with col5:
             if st.button('Rejoin', key=f"rejoin_{conversation['conversation_id']}"):
                 with action_ctr:
                     with st.spinner(f"Rejoining conversation {conversation['conversation_id']}..."):
@@ -106,7 +126,7 @@ def conversations():
                             st.session_state.anthropic_messages = conversation['messages']
                             st.switch_page("pages/2_💬_Anthropic_Chat.py")
 
-        with col5:
+        with col6:
             if st.button('Delete', key=f"delete_{conversation['conversation_id']}"):
                 with action_ctr:
                     with st.spinner(f"Deleting conversation {conversation['conversation_id']}..."):
