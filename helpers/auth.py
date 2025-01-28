@@ -11,8 +11,8 @@ IDLE_TIMEOUT_MINUTES = 10  # Timeout due to inactivity
 
 def _authenticate(username, password):
     """Check credentials from CSV and set up session if valid."""
-    users_df = pd.read_csv('data/users.csv', dtype={"username":str, "password": str})
-    user_row = users_df[(users_df['username'] == username) & (users_df['password'] == str(password))]
+    users_df = pd.read_csv('data/users.csv', dtype={"user":str, "password": str})
+    user_row = users_df[(users_df['user'] == username) & (users_df['password'] == str(password))]
     if not user_row.empty:
         # Initialize session state for the authenticated user
         st.session_state["authenticated"] = True
