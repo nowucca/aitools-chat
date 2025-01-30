@@ -92,7 +92,10 @@ def conversations():
             st.markdown(f"<div class='conversation-cell'>{conversation['model']}</div>", unsafe_allow_html=True)
 
         with col3:
-            label_options = ["No Project", "Project 2 - ML - Unsupervised", "Project 2 - ML - Supervised"]
+            label_options = ["No Project",
+                             "Project 2 - ML - Unsupervised",
+                             "Project 2 - ML - Supervised",
+                             "Project 3 - Mastermind",]
             current_label = conversation.get('label', 'No Project')
             try:
                 index = label_options.index(current_label)

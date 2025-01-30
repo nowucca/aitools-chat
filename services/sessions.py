@@ -11,7 +11,7 @@ load_dotenv()
 # MySQL connection pool
 connection_pool = pooling.MySQLConnectionPool(
     pool_name="session_pool",
-    pool_size=10,
+    pool_size=30,
     pool_reset_session=True,
     raise_on_warnings=True,
     host=os.getenv('AITOOLS_CHAT_DB_HOST'),
@@ -22,8 +22,8 @@ connection_pool = pooling.MySQLConnectionPool(
 )
 
 # Constants
-SESSION_TIMEOUT_MINUTES = 30
-IDLE_TIMEOUT_MINUTES = 10
+SESSION_TIMEOUT_MINUTES = 60
+IDLE_TIMEOUT_MINUTES = 30
 
 
 def create_session(username: str) -> tuple[str, str] | tuple[None, None]:
