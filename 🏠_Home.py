@@ -30,14 +30,14 @@ def home():
     st.markdown("""
     ## Current Features
 
-    * **OpenAI Chat**: Chat with a fixed OpenAI model (gpt-3.5-turbo).
-    * **Claude Chat**: Chat with a fixed Anthropic Claude model (claude-3-haiku-20240307).
+    * **🎉 Opensource LLM Chat**: Chat with the CS5740 class LLM (DeepSeek-R1-Distill-Qwen-32B, hosted at Virginia Tech ARC) --> No API key required!
+    * **OpenAI Chat**: Chat with a fixed OpenAI model (gpt-4o) --> but you need to bring your own credentials.
+    * **Claude Chat**: Chat with a fixed Anthropic Claude model (claude-3-haiku-20240307) --> but you need to bring your own credentials.
 
     ## Coming Soon Features
 
     _We hope to add these features soon._
-    * Login to automatically save chat history.
-    * **Llama Chat**: Chat with a local VT-run llama model (tbd).
+    * Nicer UI
 
     ## Feedback
 

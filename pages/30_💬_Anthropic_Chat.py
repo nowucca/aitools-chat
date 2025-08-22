@@ -1,44 +1,46 @@
+import asyncio
 import os
 import uuid
-import asyncio
+
 import streamlit as st
 
+import helpers.sidebar
+from helpers import chat_helper
 from helpers.auth import require_authentication, authenticated_user
 from llm import prompts
-from helpers import chat_helper
 from llm.llm import LLM_CHOICE
-import helpers.sidebar
 
 
 @require_authentication
-def openai_chat():
+def anthropic_chat():
     st.set_page_config(
-        page_title="Open AI Chat",
+        page_title="Anthropic Chat",
         page_icon="💬",
         layout="wide"
     )
 
     user = authenticated_user()
     helpers.sidebar.show()
+    anthropic_model = os.getenv('ANTHROPIC_MODEL')
+    st.header("Anthropic Chat")
+    st.write(f"Get instant answers to your questions using Anthropic's Claude ({anthropic_model}).")
 
-    conversation_assistant = chat_helper.ConversationHelper("openai_conversation_id")
-    openai_model = os.getenv('OPENAI_API_MODEL')
-    st.header("OpenAI Chat")
-    st.write(f"Get instant answers to your questions using OpenAI's ChatGPT ({openai_model}).")
+    anthropic_messages = "anthropic_messages"
+    system_prompt_key = "anthropic_system_prompt"
+    anthropic_api_key = "anthropic_api_key"
 
-    openai_messages = "openai_messages"
-    system_prompt_key = "system_prompt"
+    conversation_assistant = chat_helper.ConversationHelper("anthropic_conversation_id")
 
     # Ensure the session state is initialized
-    if openai_messages not in st.session_state:
-        st.session_state[openai_messages] = []
+    if anthropic_messages not in st.session_state:
+        st.session_state[anthropic_messages] = []
     if system_prompt_key not in st.session_state:
         st.session_state[system_prompt_key] = prompts.quick_chat_system_prompt()
 
-    # Layout for expander and chat button in the same row
-    col1, col2 = st.columns([0.75, 0.25])  # Adjust column ratios as needed
-
+    # Layout row for system prompt and buttons
+    col1, col2 = st.columns([3, 1])
     with col1:
+        api_key = st.text_input("Anthropic API Key", type="password", placeholder="your-anthropic-api-key", help="Enter your Anthropic API key.")
         expander_label = "System Prompt (Pre-Chat)" if not conversation_assistant.has_conversation_id() else "System Prompt (View Only)"
         with st.expander(expander_label, expanded=not conversation_assistant.has_conversation_id()):
             if not conversation_assistant.has_conversation_id():
@@ -51,14 +53,16 @@ def openai_chat():
         if not conversation_assistant.has_conversation_id():
             if st.button("Begin Chat"):
                 new_conversation_id = str(uuid.uuid4())
-                st.session_state[openai_messages] = [{"role": "system", "content": st.session_state[system_prompt_key]}]
+                st.session_state[anthropic_api_key] = api_key
+                st.session_state[anthropic_messages] = [
+                    {"role": "system", "content": st.session_state[system_prompt_key]}]
                 conversation_assistant.set_conversation_id(new_conversation_id)
                 st.rerun()
         else:
             if st.button("New Chat"):
-                # Stop the conversation and remove it
                 conversation_assistant.set_conversation_id(None)
-                st.session_state[openai_messages] = []
+                st.session_state[anthropic_api_key] = None
+                st.session_state[anthropic_messages] = []
                 st.session_state[system_prompt_key] = prompts.quick_chat_system_prompt()
                 st.rerun()
 
@@ -67,7 +71,7 @@ def openai_chat():
         st.write("Please start a new chat to get a conversation ID.")
     else:
         # Display chat history
-        for message in [m for m in st.session_state[openai_messages] if m["role"] != "system"]:
+        for message in [m for m in st.session_state[anthropic_messages] if m["role"] != "system"]:
             with st.chat_message(message["role"]):
                 st.markdown(f"""
                             <div class='st-chat-message'>
@@ -81,17 +85,18 @@ def openai_chat():
             unsafe_allow_html=True)
 
         # Handle user input
-        if prompt := st.chat_input("Chat with OpenAI ChatGPT..."):
-            st.session_state[openai_messages].append({"role": "user", "content": prompt})
+        if prompt := st.chat_input("Chat with Anthropic Claude..."):
+            st.session_state[anthropic_messages].append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(f"""
                             <div class='st-chat-message'>
                                 {prompt}
                             </div>
                         """, unsafe_allow_html=True)
-            asyncio.run(chat_helper.chat(LLM_CHOICE.OPENAI, st.session_state["session_api_key"],
-                                         st.session_state[openai_messages],
+            asyncio.run(chat_helper.chat(LLM_CHOICE.ANTHROPIC, 
+                                         st.session_state[anthropic_api_key],
+                                         st.session_state[anthropic_messages],
                                          conversation_assistant.get_conversation_id()))
 
 
-openai_chat()
+anthropic_chat()

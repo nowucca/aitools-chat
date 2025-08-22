@@ -3,15 +3,7 @@ from helpers.auth import is_authenticated, logout, authenticated_user
 
 def show() -> None:
     with st.sidebar:
-        st.markdown(f"""
-            <a href="/" style="color:black;text-decoration: none;">
-                <div style="display:table;margin-top:-16rem;margin-left:0%;">
-                    <span style="color: black">&nbsp;AI Tools Chat</span>
-                    <span style="font-size: 0.8em; color: grey">&nbsp;&nbsp;v0.1.3</span>
-                </div>
-            </a>
-
-                """, unsafe_allow_html=True)
+        
         login_text = '🔒' if is_authenticated() else '🔓'
         login_user = f'Logged in as {authenticated_user()}' if is_authenticated() else 'Not logged in'
         st.markdown(f"""
@@ -19,6 +11,17 @@ def show() -> None:
                 <span>{login_text}&nbsp;{login_user}</span>
             </div>
         """, unsafe_allow_html=True)
+        st.markdown("---")
+        st.markdown(f"""
+            <a href="/" style="color:black;text-decoration: none;">
+                <div style="display:table">
+                    <span style="color: black">&nbsp;AI Tools Chat</span>
+                    <span style="font-size: 0.8em; color: grey">&nbsp;&nbsp;v2025.09</span>
+                </div>
+            </a>
+
+                """, unsafe_allow_html=True)
+        st.markdown("---")
         if is_authenticated():
             logout_button = st.button("🚪 Logout")
             if logout_button:

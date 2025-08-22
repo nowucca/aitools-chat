@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 class AnthropicChatClient(LLMChatClient):
     def __init__(self):
+        super().__init__()
         self.base_url = os.getenv('ANTHROPIC_API_BASE_URL')
         self.model = os.getenv('ANTHROPIC_MODEL')
 
@@ -17,10 +18,20 @@ class AnthropicChatClient(LLMChatClient):
     def model_name(self) -> str:
         return self.model
 
-    def converse_sync(self, api_key: str, prompt: str, messages: List[Dict[str, str]], model="claude-2") -> Tuple[str, List[Dict[str, str]]]:
-        # Initialize the Anthropic client with dummy values pointing to the proxy
-        client = anthropic.Anthropic(api_key=api_key,
-                                     base_url=self.base_url)
+    def converse_sync(self, proxy_login_credentials: str, llm_api_key: str, prompt: str, messages: List[Dict[str, str]], model="claude-2") -> Tuple[str, List[Dict[str, str]]]:
+        # Use superclass proxy_login to get authentication token (JWT)
+        jwt_token = self.proxy_login(proxy_login_credentials)
+        
+        # Create client with proper Authorization header format (Bearer token)
+        # The proxy expects JWT token in Authorization header, not as api_key
+        client = anthropic.Anthropic(
+            api_key="dummy",  # Required by anthropic library but not used by proxy
+            base_url=self.base_url,
+            default_headers={
+                "Authorization": f"Bearer {jwt_token}",
+                "X-User-Anthropic-Key": llm_api_key
+            }
+        )
 
         # Add the user's message to the list of messages
         if messages is None:
@@ -41,8 +52,20 @@ class AnthropicChatClient(LLMChatClient):
 
         return response, messages
 
-    async def converse(self, api_key:str, messages: List[Dict[str, str]]) -> AsyncGenerator[str, None]:
-        aclient = anthropic.AsyncAnthropic(api_key=api_key, base_url=self.base_url)
+    async def converse(self, proxy_login_credentials: str, llm_api_key: str, messages: List[Dict[str, str]]) -> AsyncGenerator[str, None]:
+        # Use superclass proxy_login to get authentication token (JWT)
+        jwt_token = self.proxy_login(proxy_login_credentials)
+        
+        # Create async client with proper Authorization header format (Bearer token)
+        # The proxy expects JWT token in Authorization header, not as api_key
+        aclient = anthropic.AsyncAnthropic(
+            api_key="dummy",  # Required by anthropic library but not used by proxy
+            base_url=self.base_url, 
+            default_headers={
+                "Authorization": f"Bearer {jwt_token}",
+                "X-User-Anthropic-Key": llm_api_key
+            }
+        )
         # Check for a system message at the start
         system_prompt = None
         if messages and messages[0].get("role") == "system":
@@ -74,4 +97,3 @@ class AnthropicChatClient(LLMChatClient):
 
         except Exception as e:
             yield f"EXCEPTION {str(e)}"
-

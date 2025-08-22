@@ -17,7 +17,9 @@ async def _run_conversation(client: LLMChatClient,
         -> Tuple[List[Dict[str, str]], str]:
     full_response = ""
 
-    chunks = client.converse(api_key, messages)
+    chunks = client.converse(proxy_login_credentials=st.session_state["session_api_key"], 
+                             llm_api_key=api_key, 
+                             messages=messages)
     chunk = await anext(chunks, "END OF CHAT")
     while chunk != "END OF CHAT":
         print(f"Received chunk from LLM service: {chunk}")
